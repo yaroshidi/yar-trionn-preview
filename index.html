@@ -580,28 +580,32 @@ html.js:not(.static) .quote blockquote{transition:none}
   .work .cl{left:0;right:0;top:auto;bottom:0;width:auto;height:1px;transform-origin:0 50%}
   html.js:not(.static) .work .proj,html.js:not(.static) .work .intro{border-bottom-color:transparent}
 }
-/* ---------- page-top background: soft gallery spotlight + film grain (flat, no WebGL) ----------
-   One fixed layer behind the opening black run (hero, about, marquee). JS moves the pre-rendered light with transform
-   along a scroll path and fades the layer out before the first light section (the blinds after the marquee). */
+/* ---------- page-top lighting (flat, no WebGL) ----------
+   One fixed layer behind the opening black run (hero, about, marquee). Three pre-rendered lights move with transform/opacity only:
+   a warm key light (hero), a cool steel light that rises from the lower left and crosses it (about), and a wide band that sweeps
+   left to right behind the marquee letters. Grain lives inside each light (masked by its falloff) so plain black stays black.
+   The layer fades out as the stripe wipe into the grey numbers section arrives. */
 .bgfx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;isolation:isolate;background:var(--bg);contain:strict}
-.bgfx .spot{position:absolute;left:0;top:0;width:var(--sps,104vmax);aspect-ratio:1;margin:calc(var(--sps,104vmax)/-2) 0 0 calc(var(--sps,104vmax)/-2);
-  transform:translate3d(78vw,4vh,0);will-change:transform,opacity;
-  background:radial-gradient(closest-side,rgba(236,230,220,.088) 0%,rgba(236,230,220,.083) 10%,rgba(236,230,220,.072) 20%,rgba(236,230,220,.059) 30%,rgba(236,230,220,.045) 40%,rgba(236,230,220,.032) 50%,rgba(236,230,220,.021) 60%,rgba(236,230,220,.0125) 70%,rgba(236,230,220,.006) 80%,rgba(236,230,220,.0018) 90%,rgba(236,230,220,0) 100%)}
-/* grain lives inside the light (masked by the same falloff), so pure black stays pure black and the grain dithers the gradient */
-.bgfx .spot{overflow:hidden;-webkit-mask-image:radial-gradient(closest-side,#000 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.12) 85%,transparent 100%);mask-image:radial-gradient(closest-side,#000 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.12) 85%,transparent 100%)}
-.bgfx .spot::after{content:"";position:absolute;inset:-64px;will-change:transform;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .97 0 0 0 0 .93 .18 0 0 0 -.075'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0/160px 160px;
-  animation:grain 1.1s steps(6) infinite}
+.bgfx .lt{position:absolute;left:0;top:0;overflow:hidden;will-change:transform,opacity;-webkit-mask-image:radial-gradient(closest-side,#000 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.12) 85%,transparent 100%);mask-image:radial-gradient(closest-side,#000 0%,rgba(0,0,0,.85) 30%,rgba(0,0,0,.45) 60%,rgba(0,0,0,.12) 85%,transparent 100%)}
+.bgfx .lt::after{content:"";position:absolute;inset:-64px;will-change:transform;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .98 0 0 0 0 .95 .2 0 0 0 -.082'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0/160px 160px;animation:grain 1.1s steps(6) infinite}
+.bgfx .warm{--s:104vmax;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);transform:translate3d(78vw,4vh,0);background:radial-gradient(closest-side,rgba(238,231,219,0.122) 0%,rgba(238,231,219,0.1147) 10%,rgba(238,231,219,0.1) 20%,rgba(238,231,219,0.0817) 30%,rgba(238,231,219,0.0622) 40%,rgba(238,231,219,0.0439) 50%,rgba(238,231,219,0.0293) 60%,rgba(238,231,219,0.0171) 70%,rgba(238,231,219,0.0083) 80%,rgba(238,231,219,0.0024) 90%,rgba(238,231,219,0) 100%)}
+.bgfx .cool{--s:98vmax;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);transform:translate3d(-20vw,110vh,0);opacity:0;background:radial-gradient(closest-side,rgba(200,210,225,0.098) 0%,rgba(200,210,225,0.0921) 10%,rgba(200,210,225,0.0804) 20%,rgba(200,210,225,0.0657) 30%,rgba(200,210,225,0.05) 40%,rgba(200,210,225,0.0353) 50%,rgba(200,210,225,0.0235) 60%,rgba(200,210,225,0.0137) 70%,rgba(200,210,225,0.0067) 80%,rgba(200,210,225,0.002) 90%,rgba(200,210,225,0) 100%)}
+.bgfx .band{width:124vw;height:54vh;margin:-27vh 0 0 -62vw;transform:translate3d(-40vw,150vh,0);opacity:0;background:radial-gradient(closest-side,rgba(230,230,233,0.13) 0%,rgba(230,230,233,0.1222) 10%,rgba(230,230,233,0.1066) 20%,rgba(230,230,233,0.0871) 30%,rgba(230,230,233,0.0663) 40%,rgba(230,230,233,0.0468) 50%,rgba(230,230,233,0.0312) 60%,rgba(230,230,233,0.0182) 70%,rgba(230,230,233,0.0088) 80%,rgba(230,230,233,0.0026) 90%,rgba(230,230,233,0) 100%)}
+/* shade: a soft black floor that rides on top of the stripe wipe so the lights dim into it instead of meeting a hard edge */
+.bgfx .shade{position:absolute;left:0;top:0;width:100%;height:240vh;will-change:transform;background:linear-gradient(180deg,rgba(5,6,8,0) 0,rgba(5,6,8,.5) 6vh,var(--bg) 13vh);transform:translate3d(0,200vh,0)}
+.bgfx .band::after{animation-delay:-.4s}.bgfx .cool::after{animation-delay:-.7s}
 @keyframes grain{0%{transform:translate(0,0)}17%{transform:translate(-23px,11px)}33%{transform:translate(17px,-29px)}50%{transform:translate(-9px,31px)}67%{transform:translate(29px,7px)}83%{transform:translate(-31px,-17px)}100%{transform:translate(0,0)}}
-html.static .bgfx .spot::after{animation:none}
-@media (prefers-reduced-motion:reduce){.bgfx .spot::after{animation:none}}
-@media (max-width:900px){.bgfx .spot{--sps:135vmax;transform:translate3d(70vw,47vh,0)}}
+html.static .bgfx .lt::after{animation:none}
+@media (prefers-reduced-motion:reduce){.bgfx .lt::after{animation:none}}
+@media (max-width:900px){.bgfx .warm{--s:135vmax;transform:translate3d(70vw,47vh,0)}.bgfx .cool{--s:125vmax}.bgfx .band{width:190vw;height:40vh;margin:-20vh 0 0 -95vw}}
+/* about's closing line reuses the footer's .foot class, which painted an opaque black box over the lights */
+.about .foot{background:none}
 /* the about divider's "+" used a black box to mask the hairline; over the spotlight that box showed, so let the light through */
 .about .rule::after,.about .rule .lp-plus{background:none}
 </style>
 </head>
 <body>
-<div class="bgfx" aria-hidden="true"><i class="spot"></i></div>
+<div class="bgfx" aria-hidden="true"><i class="lt warm"></i><i class="lt cool"></i><i class="lt band"></i><i class="shade"></i></div>
 <div class="pl" id="pl" aria-hidden="true">
   <div class="pl-box" id="plBox">
     <div class="pl-fill" id="plFill"></div>
@@ -1099,27 +1103,42 @@ const draw=()=>{cx.clearRect(0,0,W,H);
  for(let i=0;i<70;i++){const px=(Math.sin(i*91.7)*.5+.5)*W,py=(Math.cos(i*47.3)*.5+.5)*H;cx.fillStyle=`rgba(216,216,216,${.08+((i*13)%10)/40})`;cx.fillRect(px,py,1,1)}};
 const drift=dt=>{const k=dt*60;for(const s of S){s.x+=Math.cos(s.a)*s.v*1.4*k;s.y+=Math.sin(s.a)*s.v*1.4*k;if(s.x>1.1||s.y<-.1){s.x=-.05+Math.random()*.6;s.y=1.05+Math.random()*.2}}};
 addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5},{passive:true});
-/* page-top spotlight: one fixed layer behind the opening black run (hero, about, marquee). The pre-rendered light travels a
-   gentle path with the (Lenis-smoothed) scroll like a lamp moving past, swells/dims slightly, adds a small eased pointer drift
-   on fine pointers, and the layer fades out before the first light section (the blinds after the marquee). Transform/opacity only. */
-const bgfx=$('.bgfx'),spot=$('.bgfx .spot'),bgEnd=$('main .blinds');
-/* path keys: [x vw, y vh, scale, intensity] at p = 0, .25, .5, .75, 1 of the black run */
-const SP=mobile?[[70,47,1,1],[34,52,1.06,.93],[66,58,1.12,1],[30,50,1.04,.9],[60,46,.96,.82]]
-               :[[78,4,1,1],[52,30,1.08,.95],[30,52,1.14,1],[58,64,1.06,.92],[76,46,.96,.84]];
-const spLerp=p=>{const n=SP.length-1,f=Math.min(n-1e-6,Math.max(0,p)*n),i=f|0,t=f-i,e=t*t*(3-2*t),A=SP[i],B=SP[i+1];return A.map((v,k)=>v+(B[k]-v)*e)};
-let bgP=0,bgO=-1,sdx=0,sdy=0,bgLast='';
-const bgRange=()=>{const y=bgEnd?bgEnd.getBoundingClientRect().top+scrollY:innerHeight*2;return Math.max(innerHeight,y-innerHeight*.95)};
-const bgPaint=(p,o)=>{if(!spot)return;const [x,y,s,a]=spLerp(p);
-  const tr=`translate3d(calc(${x.toFixed(2)}vw + ${sdx.toFixed(1)}px),calc(${y.toFixed(2)}vh + ${sdy.toFixed(1)}px),0) scale(${s.toFixed(4)})`;
-  if(tr!==bgLast){spot.style.transform=tr;bgLast=tr}
-  const op=Math.max(0,Math.min(1,o));if(Math.abs(op-bgO)>.002){bgO=op;bgfx.style.opacity=op.toFixed(3);bgfx.style.visibility=op<.003?'hidden':''}
-  spot.style.opacity=a.toFixed(3)};
-const bgState=()=>{const end=bgRange(),y=window.__lenis?window.__lenis.animatedScroll:scrollY,p=Math.max(0,Math.min(1,y/end));
-  return [p,1-Math.max(0,Math.min(1,(y-(end-innerHeight*.45))/(innerHeight*.45)))]};
-const bgLoop=dt=>{const [p,o]=bgState();bgP+=(p-bgP)*M.k(dt,.12);
-  if(canHover&&!still){const k=M.k(dt,.018);sdx+=(mx*innerWidth*.06-sdx)*k;sdy+=(my*innerHeight*.05-sdy)*k}
-  if(o<=0&&bgO<=0)return;bgPaint(bgP,o)};
-if(still){const st0=()=>{const [,o]=bgState();bgPaint(0,o)};st0();addEventListener('scroll',st0,{passive:true});addEventListener('resize',st0)}
+/* page-top lighting: one fixed layer behind the opening black run (hero, about, marquee). Progress p runs from the top of the page to
+   the point where the stripe wipe after the marquee reaches 35% of the viewport (read from the Lenis-smoothed scroll each YarFrame).
+   warm: key light drifting from the top right down to centre-left and back up, handing over to
+   cool: a steel light rising from the lower left that crosses it, so some light is always on screen;
+   band: a wide soft light that sweeps left to right behind the marquee letters while the marquee crosses the screen.
+   Fine pointers add a small eased drift. Transform/opacity only. Everything fades out as the wipe arrives. */
+const bgfx=$('.bgfx'),bgEnd=$('main .blinds'),bgMarq=$('.marq');
+const L={warm:$('.bgfx .warm'),cool:$('.bgfx .cool'),band:$('.bgfx .band'),shade:$('.bgfx .shade')};
+/* keys: [p, x vw, y vh, scale, intensity] */
+const KP=mobile?{
+  warm:[[0,70,47,1,1],[.22,34,54,1.06,.95],[.45,62,40,1.1,.7],[.7,40,22,1,.42],[1,60,12,.95,.28]],
+  cool:[[0,-25,112,1,.25],[.18,-8,100,1,.5],[.42,22,72,1.08,.95],[.66,58,58,1.12,1],[.85,36,46,1.05,.9],[1,30,40,1,.8]]
+}:{
+  warm:[[0,74,10,1,1],[.22,54,30,1.08,.96],[.45,32,46,1.12,.78],[.7,46,24,1,.5],[1,70,10,.92,.3]],
+  cool:[[0,-22,108,1,.3],[.18,-8,98,1,.55],[.42,14,74,1.08,.95],[.66,42,62,1.14,1],[.85,64,50,1.08,.92],[1,72,42,1,.8]]
+};
+const keyAt=(K,p)=>{if(p<=K[0][0])return K[0].slice(1);for(let i=1;i<K.length;i++)if(p<=K[i][0]){const A=K[i-1],B=K[i],t=(p-A[0])/(B[0]-A[0]),e=t*t*(3-2*t);return A.slice(1).map((v,k)=>v+(B[k+1]-v)*e)}return K[K.length-1].slice(1)};
+const cl=v=>v<0?0:v>1?1:v;
+let bgP=-1,bgY=0,bgO=-1,sdx=0,sdy=0;const last={};
+const setT=(n,tr,op)=>{const el=L[n];if(!el)return;const c=last[n]||(last[n]={});
+  if(tr!==c.tr){el.style.transform=tr;c.tr=tr}const o=op.toFixed(3);if(o!==c.o){el.style.opacity=o;el.style.visibility=op<.004?'hidden':'';c.o=o}};
+const bgPaint=(y,frozen)=>{const ih=innerHeight,bt=(bgEnd?bgEnd.getBoundingClientRect().top+scrollY:ih*3)-y,yEnd=Math.max(ih,(bt+y)-ih*.35);
+  const p=frozen?0:cl(y/yEnd),o=cl((bt-ih*.12)/(ih*.33));
+  if(Math.abs(o-bgO)>.002){bgO=o;bgfx.style.opacity=o.toFixed(3);bgfx.style.visibility=o<.003?'hidden':''}
+  if(o<=0)return;
+  setT('shade',`translate3d(0,${(bt-ih*.13).toFixed(1)}px,0)`,1);
+  for(const n of ['warm','cool']){const [x,yy,s,a]=frozen?(n==='warm'?KP.warm[0].slice(1):(mobile?[18,82,1,.75]:[10,88,1,.75])):keyAt(KP[n],p);
+    setT(n,`translate3d(calc(${x.toFixed(2)}vw + ${(sdx*(n==='warm'?1:-.7)).toFixed(1)}px),calc(${yy.toFixed(2)}vh + ${(sdy*(n==='warm'?1:-.7)).toFixed(1)}px),0) scale(${s.toFixed(4)})`,a)}
+  /* band: centred on the marquee belt; m = 0 as the marquee enters at the bottom, 1 when it reaches the top */
+  if(bgMarq){const r=bgMarq.getBoundingClientRect(),mh=r.height,cy=r.top+mh*.42,m=cl((ih-r.top)/(ih+mh));
+    const vis=Math.sin(Math.PI*cl(m*1.05))**.6,x=frozen?50:-30+150*cl(m/.75);
+    setT('band',`translate3d(calc(${x.toFixed(2)}vw + ${(sdx*.5).toFixed(1)}px),${cy.toFixed(1)}px,0)`,vis)}};
+const bgLoop=dt=>{const y=window.__lenis?window.__lenis.animatedScroll:scrollY;bgY=bgP<0?y:bgY+(y-bgY)*M.k(dt,.2);bgP=1;
+  if(canHover){const k=M.k(dt,.018);sdx+=(mx*innerWidth*.06-sdx)*k;sdy+=(my*innerHeight*.05-sdy)*k}
+  bgPaint(bgY,false)};
+if(still){const st0=()=>bgPaint(scrollY,true);st0();addEventListener('scroll',st0,{passive:true});addEventListener('resize',st0)}
 const heroLoop=dt=>{const k=M.k(dt);tx+=(mx-tx)*k;ty+=(my-ty)*k;drift(dt);draw()};
 if(still)draw();else if(CAPTURE){window.__step2d=()=>heroLoop(1/30)}
 
